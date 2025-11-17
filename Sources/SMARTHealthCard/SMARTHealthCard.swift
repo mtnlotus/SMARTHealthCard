@@ -1,2 +1,26 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  SMARTHealthCard.swift
+//  SMARTHealthCard
+//
+//  Created by David Carlson on 11/15/25.
+//
+
+import Foundation
+
+/**
+  A JSON Web Signature as defined by https://hl7.org/fhir/uv/smart-health-cards-and-links/.
+ */
+struct SMARTHealthCard: Codable {
+	
+	public let verifiableCredential: [JWS]
+	
+	public init(from json: [String: Any]) throws {
+		if let jwsStrings = json["verifiableCredential"] as? [String] {
+			self.verifiableCredential = try jwsStrings.compactMap { try JWS(from: $0) }
+		}
+		else {
+			self.verifiableCredential = []
+		}
+	}
+	
+}

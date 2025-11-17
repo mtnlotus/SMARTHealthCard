@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "19B04DBD-A384-4EFC-8DE9-5D9778925799",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SMARTHealthCardTests",
+        "name" : "SMARTHealthCardTests"
+      }
+    }
+  ],
+  "version" : 1
+}
