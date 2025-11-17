@@ -4,7 +4,7 @@ import ModelsR4
 
 @testable import SMARTHealthCard
 
-@Suite struct JWSTests {
+@Suite struct SMARTHealthCardTests {
 	
 	var testResourcesDirectory: String {
 		"TestData"
