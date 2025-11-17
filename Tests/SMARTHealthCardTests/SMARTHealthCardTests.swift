@@ -6,22 +6,41 @@ import ModelsR4
 
 @Suite struct SMARTHealthCardTests {
 	
-	var testResourcesDirectory: String {
+	var testDataDirectory: String {
 		"TestData"
 	}
 	
 	/// Load SMART Health Card from a file.
 	func loadSmartHealthCard(from fileName: String) throws -> [String: Any] {
-		let filePath = "\(testResourcesDirectory)/\(fileName)"
-		guard let fileURL = Foundation.Bundle.module.url(forResource: filePath, withExtension: "smart-health-card")
-		else { throw TestError.failed("Cannot load test resources from: \(filePath)") }
+		try loadJSONData(from: fileName, withExtension: "smart-health-card")
+	}
+	
+	/// Load JSON data from a file.
+	func loadJSONData(from fileName: String, withExtension fileExtension: String = "json") throws -> [String: Any] {
+		let filePath = "\(testDataDirectory)/\(fileName)"
+		guard let fileURL = Foundation.Bundle.module.url(forResource: filePath, withExtension: fileExtension)
+		else { throw TestError.failed("Cannot load JSON file from: \(filePath).\(fileExtension)") }
 							
 		do {
-			let cardData = try Data(contentsOf: fileURL)
-			return try JSONSerialization.jsonObject(with: cardData, options: []) as! [String: Any]
+			let jsonData = try Data(contentsOf: fileURL)
+			return try JSONSerialization.jsonObject(with: jsonData, options: []) as! [String: Any]
 		}
 		catch {
-			throw TestError.failed("Cannot parse SMART Health Card from: \(filePath)")
+			throw TestError.failed("Cannot parse JSON data from: \(filePath).\(fileExtension)")
+		}
+	}
+	
+	/// Load String data from a file.
+	func loadStringData(from fileName: String, withExtension fileExtension: String = "txt") throws -> String {
+		let filePath = "\(testDataDirectory)/\(fileName)"
+		guard let fileURL = Foundation.Bundle.module.url(forResource: filePath, withExtension: fileExtension)
+		else { throw TestError.failed("Cannot load data file from: \(filePath).\(fileExtension)") }
+							
+		do {
+			return try String(contentsOf: fileURL, encoding: .utf8)
+		}
+		catch {
+			throw TestError.failed("Cannot parse String data from: \(filePath).\(fileExtension)")
 		}
 	}
 	
@@ -49,6 +68,17 @@ import ModelsR4
 		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?[1].resource?.get() is Immunization)
 		
 //		print(String(data: payload, encoding: .utf8)!)
+	}
+	
+	@Test func parseQRCodePayload() async throws {
+		let stringData = try loadStringData(from: "example-00-d-jws.shc", withExtension: "txt")
+		let jws = try JWS(from: stringData)
+		let smartHealthCardPayload = try JSONDecoder().decode(SMARTHealthCardPayload.self, from: jws.payload)
+		
+		#expect(smartHealthCardPayload.iss == "https://spec.smarthealth.cards/examples/issuer")
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?.count == 4)
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?[0].resource?.get() is Patient)
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?[1].resource?.get() is Immunization)
 	}
 	
 	@Test func verifySignature() async throws {

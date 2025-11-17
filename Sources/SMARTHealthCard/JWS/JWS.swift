@@ -21,7 +21,10 @@ struct JWS: Codable {
     public let signature: String
     
     public init(from compactSerialization: String) throws {
-        let (headerString, payloadString, signatureString) = try Self.split(compactSerialization: compactSerialization)
+		// Trim "shc:/" prefix, if present.  This will be present in string content from a QR code representation.
+		let jwsString = String(compactSerialization.trimmingPrefix("shc:/"))
+		
+        let (headerString, payloadString, signatureString) = try Self.split(compactSerialization: jwsString)
         
         let headerData = try Base64URL.decode(headerString)
         let jsonDecoder = JSONDecoder()
