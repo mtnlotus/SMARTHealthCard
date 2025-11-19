@@ -10,7 +10,7 @@ import Foundation
 /**
   A JSON Web Signature as defined by https://tools.ietf.org/html/rfc7515.
  */
-struct JWS: Codable {
+public struct JWS: Codable {
 	
 	static let smallestB64CharCode: UInt8 = 45
     

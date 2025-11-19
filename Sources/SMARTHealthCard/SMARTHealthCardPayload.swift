@@ -8,7 +8,7 @@
 import Foundation
 import ModelsR4
 
-struct SMARTHealthCardPayload: Codable {
+public struct SMARTHealthCardPayload: Codable {
 	
 	public struct VC: Codable {
 		
@@ -30,7 +30,7 @@ struct SMARTHealthCardPayload: Codable {
 	public let vc: VC
 }
 
-struct CredentialSubject: Codable {
+public struct CredentialSubject: Codable {
 	
 	public let fhirVersion: String
 	
