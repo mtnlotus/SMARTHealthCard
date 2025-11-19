@@ -71,8 +71,37 @@ import ModelsR4
 	}
 	
 	@Test func parseQRCodePayload() async throws {
-		let stringData = try loadStringData(from: "example-00-d-jws.shc", withExtension: "txt")
+		let stringData = try loadStringData(from: "example-00-d-jws", withExtension: "txt")
 		let jws = try JWS(from: stringData)
+		let smartHealthCardPayload = try JSONDecoder().decode(SMARTHealthCardPayload.self, from: jws.payload)
+		
+		#expect(smartHealthCardPayload.iss == "https://spec.smarthealth.cards/examples/issuer")
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?.count == 4)
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?[0].resource?.get() is Patient)
+		#expect(smartHealthCardPayload.vc.credentialSubject.fhirBundle?.entry?[1].resource?.get() is Immunization)
+	}
+	
+	@Test func jwsToNumericSerialization() async throws {
+		let jwsString = try loadStringData(from: "example-00-d-jws", withExtension: "txt")
+		let numericString = try loadStringData(from: "example-00-f-qr-code-numeric-value-0", withExtension: "txt").trimmingCharacters(in: .whitespacesAndNewlines)
+		
+		let jws = try JWS(from: jwsString)
+		let numericSerialization = jws.numericSerialization
+		#expect(numericSerialization == numericString)
+	}
+	
+	@Test func jwsFromNumericSerialization() async throws {
+		let jwsString = try loadStringData(from: "example-00-d-jws", withExtension: "txt")
+		let numericString = try loadStringData(from: "example-00-f-qr-code-numeric-value-0", withExtension: "txt").trimmingCharacters(in: .whitespacesAndNewlines)
+		
+		let jws = try JWS(fromNumeric: numericString)
+		let compactSerialization = jws.compactSerialization
+		#expect(compactSerialization == jwsString)
+	}
+	
+	@Test func parseNumericQRCodePayload() async throws {
+		let numericString = try loadStringData(from: "example-00-f-qr-code-numeric-value-0", withExtension: "txt").trimmingCharacters(in: .whitespacesAndNewlines)
+		let jws = try JWS(fromNumeric: numericString)
 		let smartHealthCardPayload = try JSONDecoder().decode(SMARTHealthCardPayload.self, from: jws.payload)
 		
 		#expect(smartHealthCardPayload.iss == "https://spec.smarthealth.cards/examples/issuer")
@@ -88,4 +117,17 @@ import ModelsR4
 		
 		#expect(try await jws.verifySignature() == true)
 	}
+	
+	@Test func ordinalValues() {
+		let stringValue = "3"
+		let intValues = stringValue.compactMap { $0.asciiValue }
+			.map { $0 - JWS.smallestB64CharCode }
+			.flatMap { [$0 / 10, $0 % 10] }
+		
+		let numericString = intValues.map { String($0) }.joined(separator: "")
+		
+		#expect(intValues == [0, 6])
+		#expect(numericString == "06")
+	}
+	
 }

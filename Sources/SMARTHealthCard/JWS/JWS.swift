@@ -11,6 +11,8 @@ import Foundation
   A JSON Web Signature as defined by https://tools.ietf.org/html/rfc7515.
  */
 struct JWS: Codable {
+	
+	static let smallestB64CharCode: UInt8 = 45
     
     public let header: String
     
@@ -19,12 +21,34 @@ struct JWS: Codable {
     public let payload: Data
     
     public let signature: String
-    
-    public init(from compactSerialization: String) throws {
-		// Trim "shc:/" prefix, if present.  This will be present in string content from a QR code representation.
-		let jwsString = String(compactSerialization.trimmingPrefix("shc:/"))
+	
+	public var compactSerialization: String {
+		"\(header).\(payloadString).\(signature)"
+	}
+	
+	public var numericSerialization: String {
+		let intValues = compactSerialization.compactMap { $0.asciiValue }
+			.map { $0 - JWS.smallestB64CharCode }
+			.flatMap { [$0 / 10, $0 % 10] }
 		
-        let (headerString, payloadString, signatureString) = try Self.split(compactSerialization: jwsString)
+		let numericString = intValues.map { String($0) }.joined(separator: "")
+		return numericString
+	}
+	
+	public init(fromNumeric numericSerialization: String) throws {
+		// Trim "shc:/" prefix, if present.  This will be present in string content from a QR code representation.
+		let numericString = String(numericSerialization.trimmingPrefix("shc:/"))
+		
+		// Decoding the pairs of numerals yields a JWS serialization.
+		let twoCharSubstrings = numericString.splitIntoChunks(ofLength: 2)
+		let byteArray: [UInt8] = twoCharSubstrings.compactMap { UInt8($0) }.map { $0 + JWS.smallestB64CharCode }
+		let jwsString = String(bytes: byteArray, encoding: .ascii) ?? ""
+		
+		try self.init(from: jwsString)
+	}
+	
+    public init(from compactSerialization: String) throws {
+        let (headerString, payloadString, signatureString) = try Self.split(compactSerialization: compactSerialization)
         
         let headerData = try Base64URL.decode(headerString)
         let jsonDecoder = JSONDecoder()
