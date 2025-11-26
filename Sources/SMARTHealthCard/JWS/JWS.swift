@@ -36,6 +36,9 @@ public struct JWS: Codable {
 	}
 	
 	public init(fromNumeric numericSerialization: String) throws {
+		if numericSerialization.isEmpty {
+			throw JWSError.invalidData
+		}
 		// Trim "shc:/" prefix, if present.  This will be present in string content from a QR code representation.
 		let numericString = String(numericSerialization.trimmingPrefix("shc:/"))
 		
@@ -48,6 +51,9 @@ public struct JWS: Codable {
 	}
 	
     public init(from compactSerialization: String) throws {
+		if compactSerialization.isEmpty {
+			throw JWSError.invalidData
+		}
         let (headerString, payloadString, signatureString) = try Self.split(compactSerialization: compactSerialization)
         
         let headerData = try Base64URL.decode(headerString)

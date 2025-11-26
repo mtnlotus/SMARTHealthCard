@@ -5,8 +5,18 @@ Abstract:
 An error relating to handling a JSON Web Signature (JWS).
 */
 
-enum JWSError: Error {
+public enum JWSError: Error {
     
     // A JWS should have three segments: header, payload, and signature.
     case invalidNumberOfSegments(Int)
+	case invalidData
+	
+	public var description: String {
+		switch self {
+		case .invalidNumberOfSegments(let segments):
+			return "The data format is invalid. Found \(segments) instead of 3 segments."
+		case .invalidData:
+			return "Invalid SMART Health Card data."
+		}
+	}
 }
