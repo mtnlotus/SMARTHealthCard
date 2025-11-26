@@ -1,0 +1,16 @@
+{
+  "resourceType" : "Observation",
+  "id" : "pcoWhatMattersPurposeExample",
+  "status" : "final",
+  "code" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "code" : "247751003"
+    }]
+  },
+  "subject" : {
+    "reference" : "Patient/pcoPatientJones"
+  },
+  "effectiveDateTime" : "2025-07-30T10:35:00Z",
+  "valueString" : "I want to remain healthy and active so that I can travel with my sister and play with my grandchildren."
+}
