@@ -85,7 +85,7 @@ public struct JWS: Codable {
     }
 }
 
-struct JWSHeader: Codable {
+public struct JWSHeader: Codable {
     
     public let alg: SignatureAlgorithm
     
