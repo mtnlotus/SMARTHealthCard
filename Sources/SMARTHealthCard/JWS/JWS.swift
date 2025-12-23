@@ -36,10 +36,10 @@ public struct JWS: Codable {
 	}
 	
 	public init(fromNumeric numericSerialization: String) throws {
-		if numericSerialization.isEmpty {
+		if numericSerialization.isEmpty || !numericSerialization.hasPrefix("shc:/") {
 			throw JWSError.invalidData
 		}
-		// Trim "shc:/" prefix, if present.  This will be present in string content from a QR code representation.
+		// Trim "shc:/" prefix.
 		let numericString = String(numericSerialization.trimmingPrefix("shc:/"))
 		
 		// Decoding the pairs of numerals yields a JWS serialization.
