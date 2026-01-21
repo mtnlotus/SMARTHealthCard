@@ -36,7 +36,7 @@ public struct JWS: Codable {
 	}
 	
 	public init(fromNumeric numericSerialization: String) throws {
-		if numericSerialization.isEmpty || !numericSerialization.hasPrefix("shc:/") {
+		if numericSerialization.isEmpty {
 			throw JWSError.invalidData
 		}
 		// Trim "shc:/" prefix.

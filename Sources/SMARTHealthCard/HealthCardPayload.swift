@@ -8,7 +8,7 @@
 import Foundation
 import ModelsR4
 
-public struct SMARTHealthCardPayload: Codable {
+public struct HealthCardPayload: Codable {
 	
 	public struct VC: Codable {
 		

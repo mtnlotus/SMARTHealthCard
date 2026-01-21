@@ -7,17 +7,17 @@
 
 import Foundation
 
-public extension SMARTHealthCardPayload {
+public extension HealthCardPayload {
 	
-	public var issuer: String {
+	var issuer: String {
 		self.iss
 	}
 	
-	public var issueDate: Date? {
+	var issueDate: Date? {
 		self.nbf != nil ? Date(timeIntervalSince1970: self.nbf!) : nil
 	}
 	
-	public var expiresDate: Date? {
+	var expiresDate: Date? {
 		self.exp != nil ? Date(timeIntervalSince1970: self.exp!) : nil
 	}
 	

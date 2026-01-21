@@ -10,7 +10,7 @@ import Foundation
 /**
   A SMART Health Card as defined by https://hl7.org/fhir/uv/smart-health-cards-and-links/.
  */
-struct SMARTHealthCard: Codable {
+public struct HealthCard: Codable {
 	
 	public let verifiableCredential: [JWS]
 	
