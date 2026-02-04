@@ -12,9 +12,11 @@ import Foundation
  */
 public struct HealthCardSet: Codable {
 	
-	public let verifiableCredential: [JWS]
+//	public let verifiableCredential: [JWS]
+	public let verifiableCredential: [String]
 	
-	// TOOD
+	// TODO
+	/*
 	public init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		self.verifiableCredential = try container.decode([JWS].self, forKey: .verifiableCredential)
@@ -32,5 +34,6 @@ public struct HealthCardSet: Codable {
 			self.verifiableCredential = []
 		}
 	}
+	*/
 	
 }

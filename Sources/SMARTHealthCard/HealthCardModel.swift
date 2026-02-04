@@ -17,6 +17,9 @@ import OSLog
  */
 @MainActor @Observable public class HealthCardModel {
 	
+	// Published value triggers view(s) to update after a new health card is opened and read.
+	public var didOpenHealthCard: Bool = false
+	
 	public var trustManager: TrustManager? {
 		didSet {
 			if trustManager != nil {
@@ -63,6 +66,15 @@ import OSLog
 	
 	func clearMessages() {
 		messages = []
+	}
+	
+	public var heathCardSet: HealthCardSet? {
+		didSet {
+			// TODO: Ignores content from more than one verifiableCredential.
+			if let compactSerialization = heathCardSet?.verifiableCredential[0] {
+				self.compactSerialization = compactSerialization
+			}
+		}
 	}
 	
 	public var compactSerialization: String? {
