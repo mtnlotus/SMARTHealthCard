@@ -5,10 +5,11 @@ import PackageDescription
 
 let package = Package(
 	name: "SMARTHealthCard",
-	platforms: [
-		.macOS(.v15),
-		.iOS(.v17),
-	],
+    platforms: [
+        .iOS(.v18),
+        .macOS(.v15),
+        .watchOS(.v11),
+    ],
 	products: [
 		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(

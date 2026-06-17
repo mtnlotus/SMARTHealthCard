@@ -5,8 +5,6 @@
 //  Created by David Carlson on 12/10/25.
 //
 
-import SMARTHealthCard
-
 public struct IssuerDirectory: Codable {
 	public let participating_issuers: [TrustedIssuer]
 }

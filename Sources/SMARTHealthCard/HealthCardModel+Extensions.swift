@@ -6,19 +6,19 @@
 //
 
 import Foundation
-import class ModelsR4.Resource
+import protocol ModelsR4.Resource
 
 public extension HealthCardModel {
 	
-	public var issueDate: Date? {
+	var issueDate: Date? {
 		healthCardPayload?.issueDate
 	}
 	
-	public var expiresDate: Date? {
+	var expiresDate: Date? {
 		healthCardPayload?.expiresDate
 	}
 	
-	public var issuerName: String {
+	var issuerName: String {
 		guard let iss = healthCardPayload?.iss
 		else { return "Unknown Issuer" }
 		
@@ -26,7 +26,7 @@ public extension HealthCardModel {
 		return issuer?.name ?? URL(string: iss)?.host() ?? iss
 	}
 	
-	public var fhirResources: [Resource] {
+	var fhirResources: [any Resource] {
 		healthCardPayload?.vc.credentialSubject.fhirBundle?.entry?.compactMap { $0.resource?.get() } ?? []
 	}
 	

@@ -8,9 +8,19 @@
 import CoreImage.CIFilterBuiltins
 import CryptoKit
 import SwiftUI
-import class ModelsR4.Resource
-import class ModelsR4.Bundle
+import protocol ModelsR4.Resource
+import struct ModelsR4.Bundle
 import OSLog
+
+#if canImport(UIKit)
+import UIKit
+public typealias PlatformImage = UIImage
+#elseif canImport(AppKit)
+import AppKit
+public typealias PlatformImage = NSImage
+#else
+public typealias PlatformImage = AnyObject
+#endif
 
 /**
  A HealthCardModel represents one JWS entry within a HealthCardSet verifiableCredential array.
@@ -113,24 +123,44 @@ import OSLog
 		}
 	}
 	
-	public var qrCodeImage: UIImage? {
-		if let qrData = jws?.numericSerialization.data(using: .utf8) {
-			let context = CIContext()
-			let qrCodeGenerator = CIFilter.qrCodeGenerator()
-			qrCodeGenerator.message = qrData
-			qrCodeGenerator.correctionLevel = "L"
-			 
-			if let outputImage = qrCodeGenerator.outputImage {
-				if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
-					return UIImage(cgImage: cgImage)
-				}
-			}
+	public var qrCodeImage: PlatformImage? {
+		guard let qrData = jws?.numericSerialization.data(using: .utf8) else { return nil }
+		let context = CIContext()
+		let qrCodeGenerator = CIFilter.qrCodeGenerator()
+		qrCodeGenerator.message = qrData
+		qrCodeGenerator.correctionLevel = "L"
+
+		guard let outputImage = qrCodeGenerator.outputImage,
+			  let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+			return nil
 		}
+
+		#if canImport(UIKit)
+		return UIImage(cgImage: cgImage)
+		#elseif canImport(AppKit)
+		let size = NSSize(width: outputImage.extent.width, height: outputImage.extent.height)
+		let image = NSImage(size: size)
+		image.lockFocus()
+		defer { image.unlockFocus() }
+		let rect = NSRect(origin: .zero, size: size)
+		NSGraphicsContext.current?.cgContext.draw(cgImage, in: rect)
+		return image
+		#else
 		return nil
+		#endif
 	}
 	
 	public var qrCodeImageAsPNG: Data? {
-		qrCodeImage?.pngData()
+		#if canImport(UIKit)
+		return (qrCodeImage as? UIImage)?.pngData()
+		#elseif canImport(AppKit)
+		guard let image = qrCodeImage as? NSImage else { return nil }
+		guard let tiff = image.tiffRepresentation,
+			  let rep = NSBitmapImageRep(data: tiff) else { return nil }
+		return rep.representation(using: .png, properties: [:])
+		#else
+		return nil
+		#endif
 	}
 	
 	public private(set) var jws: JWS? {
