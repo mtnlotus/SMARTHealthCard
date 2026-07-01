@@ -43,7 +43,7 @@ public class TrustManager {
 	
 	public func issuerName(iss: String?) -> String? {
 		if let iss = iss, let issuerInfo = issuerMap[iss] {
-			return issuerInfo.issuer.name ?? URL(string: iss)?.host() ?? iss
+			return issuerInfo.issuer.name
 		}
 		return nil
 	}
@@ -77,12 +77,12 @@ public class TrustManager {
 		}
 		
 		let issuerDirectory = try JSONDecoder().decode(IssuerDirectorySnapshot.self, from: try! Data(contentsOf: fileURL))
-		for var issuerInfo in issuerDirectory.issuerInfo ?? [] {
+		for var issuerInfo in issuerDirectory.issuerInfo {
 			issuerInfo.issuer.isTrusted = true
 			addIssuer(issuerInfo)
 		}
 		
-		Logger.statistics.info("Loaded Issuer Directory from '\(fileName)' with \(issuerDirectory.issuerInfo.count ?? 0) entries.")
+		Logger.statistics.info("Loaded Issuer Directory from '\(fileName)' with \(issuerDirectory.issuerInfo.count) entries.")
 	}
 	
 }

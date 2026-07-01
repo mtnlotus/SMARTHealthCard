@@ -33,7 +33,7 @@ public typealias PlatformImage = AnyObject
 	public var trustManager: TrustManager? {
 		didSet {
 			if trustManager != nil {
-				verifySignature()
+				_ = verifySignature()
 			}
 		}
 	}
@@ -152,7 +152,7 @@ public typealias PlatformImage = AnyObject
 	
 	public var qrCodeImageAsPNG: Data? {
 		#if canImport(UIKit)
-		return (qrCodeImage as? UIImage)?.pngData()
+		return qrCodeImage?.pngData()
 		#elseif canImport(AppKit)
 		guard let image = qrCodeImage as? NSImage else { return nil }
 		guard let tiff = image.tiffRepresentation,
@@ -183,7 +183,7 @@ public typealias PlatformImage = AnyObject
 		didSet {
 			if healthCardPayload != nil {
 //				Logger.statistics.debug("Completed parsing SMART Health Card, found \(self.fhirResources.count) FHIR resources")
-				try? verifySignatureFromDirectory()
+				_ = try? verifySignatureFromDirectory()
 			}
 		}
 	}
@@ -211,7 +211,12 @@ public typealias PlatformImage = AnyObject
 			// If not found, try to fetch key from issuer URL.
 			if hasVerifiedSignature == nil {
 				Task {
-					hasVerifiedSignature = try await verifySignatureFromURL()
+					do {
+						hasVerifiedSignature = try await verifySignatureFromURL()
+					}
+					catch {
+						addMessage(error)
+					}
 				}
 			}
 			
